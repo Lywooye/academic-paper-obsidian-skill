@@ -21,6 +21,12 @@ This skill turns academic-paper intake into deterministic script steps:
 4. Let a coordinator agent write the summary note and reading-list state through scripts.
 5. Optionally convert the PDF to Markdown with MinerU and validate local images.
 
+## Runtime Notes
+
+Codex can use this skill as a local CLI toolkit. Prefer direct deterministic script calls such as `scripts/attach_pdf_by_doi.py`, `scripts/write_summary_note.py`, `scripts/reading_list.py`, `scripts/convert_pdf.py`, and `scripts/convert_and_notify.py`, then inspect the resulting files/status JSON before reporting completion.
+
+Do not assume OpenClaw queue behavior exists in Codex. `scripts/queue_convert_and_notify.py` is for OpenClaw command jobs with `--announce`; Codex should use it only when an OpenClaw CLI/runtime is actually available and configured. Otherwise, run the direct wrapper and report the verified result in the current session.
+
 ## Setup
 
 Copy `config.example.json` to `config.json` and set:

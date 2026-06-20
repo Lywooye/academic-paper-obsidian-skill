@@ -20,6 +20,17 @@ This project is designed for OpenClaw-style agent workflows: it includes a `SKIL
 
 The Python scripts are plain command-line tools. Other agent systems can use the same workflow if they can call shell commands with the documented arguments, and the scripts can also be run manually.
 
+## Codex Usage
+
+Codex can use this repository as a local CLI toolkit. The best fit is deterministic work that can be run, inspected, and verified in the shared filesystem:
+
+- call `scripts/attach_pdf_by_doi.py` to attach PDFs to Zotero items
+- call `scripts/write_summary_note.py` to save summary Markdown notes
+- call `scripts/reading_list.py` to add, archive, or move papers between close-reading and read lists
+- call `scripts/convert_pdf.py` or `scripts/convert_and_notify.py` for local PDF-to-Markdown conversion and image-link validation
+
+OpenClaw-specific queueing is different. `scripts/queue_convert_and_notify.py` depends on OpenClaw command jobs and `--announce` delivery, so Codex should not assume it can provide the same automatic platform-chat completion notification. In Codex, run the deterministic scripts directly, inspect the resulting files/status JSON, and report the verified result back in the current session. If you need background execution, use your own job runner and keep the same completion rule: Markdown exists, the expected Zotero ID is present when provided, image links resolve, and the status JSON was written.
+
 ## Workflow
 
 1. Send a DOI or PDF to your coordinator agent.

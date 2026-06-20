@@ -22,6 +22,17 @@
 
 底层 Python 脚本都是普通命令行工具。其他 agent 系统只要能按文档参数调用 shell 命令，也可以使用同一套流程；这些脚本也可以手动运行。
 
+## Codex 用法
+
+Codex 可以把这个仓库当作本地 CLI 工具箱使用。最适合 Codex 的是可以在共享文件系统中运行、检查和校验的确定性步骤：
+
+- 调用 `scripts/attach_pdf_by_doi.py`，将 PDF 附加到 Zotero 条目
+- 调用 `scripts/write_summary_note.py`，保存总结 Markdown 笔记
+- 调用 `scripts/reading_list.py`，将文献加入 close-reading/archive 列表，或移动到 read 列表
+- 调用 `scripts/convert_pdf.py` 或 `scripts/convert_and_notify.py`，进行本地 PDF 到 Markdown 转换并校验图片链接
+
+OpenClaw 专属的 queue 机制不同。`scripts/queue_convert_and_notify.py` 依赖 OpenClaw command job 和 `--announce` 投递，所以 Codex 不应假设自己能提供同样的平台聊天式自动完成通知。在 Codex 中，推荐直接运行确定性脚本，检查生成的文件和 status JSON，然后在当前会话中报告已验证结果。如果需要后台执行，可以使用自己的任务运行器，但完成标准保持不变：Markdown 存在、提供 Zotero ID 时文件名匹配、图片链接可解析，并且 status JSON 已写入。
+
 ## 工作流程
 
 1. 将 DOI 或 PDF 发给你的 coordinator agent。
