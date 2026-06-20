@@ -4,6 +4,7 @@ OpenClaw-style skill and scripts for a Zotero-backed academic reading workflow:
 
 - attach a local PDF to the correct Zotero item by DOI or item key
 - write academic papers into Obsidian reading/archive lists
+- save summary-agent Markdown notes into Obsidian
 - resolve bare Markdown filenames into vault-relative wikilinks
 - optionally convert PDFs to Markdown with MinerU and validate image links
 
@@ -75,6 +76,20 @@ Attach a local PDF to an existing Zotero item:
 python3 scripts/attach_pdf_by_doi.py "/path/to/paper.pdf" --doi "10.xxxx/example" --config config.json
 ```
 
+Save a summary-agent note:
+
+```bash
+python3 scripts/write_summary_note.py \
+  --config config.json \
+  --id "ABCDEFGH" \
+  --title "Paper Title" \
+  --cn-title "论文中文标题" \
+  --journal "Medical Image Analysis" \
+  --date "2026-06-20" \
+  --doi "10.xxxx/example" \
+  --summary-file examples/sample_summary.md
+```
+
 Convert a PDF to Markdown with MinerU:
 
 ```bash
@@ -119,6 +134,7 @@ Then adjust the vault-relative paths if your vault uses different folders:
     "academicTodoList": "Academic Papers - To Read.md",
     "academicArchiveList": "Academic Papers - Archive.md",
     "academicNotesDir": "00_Inbox/PDFs",
+    "summaryNotesDir": "11_Academic/Summaries",
     "attachmentsDir": "99_Resources/Attachments"
   }
 }
@@ -149,6 +165,26 @@ export ZOTERO_GROUP_ID="your-zotero-group-id"
 ```
 
 You can also copy `.env.example` to `.env` for local reference, but the scripts read credentials from environment variables.
+
+### Configure Agent Names
+
+The public workflow uses two generic role names:
+
+- `summary agent`: produces the paper summary body
+- `coordinator agent`: calls scripts, writes files, and verifies outputs
+
+You can keep these defaults or personalize them in `config.json`:
+
+```json
+{
+  "agents": {
+    "summaryAgentName": "summary agent",
+    "coordinatorAgentName": "coordinator agent"
+  }
+}
+```
+
+These names are written into summary notes for provenance only. The scripts do not depend on any specific agent platform.
 
 ### Optional MinerU Setup
 
@@ -202,13 +238,29 @@ python3 scripts/reading_list.py \
   --summary "A concise reason to read this paper."
 ```
 
+Then test a summary-note write:
+
+```bash
+python3 scripts/write_summary_note.py \
+  --config config.json \
+  --id "ABCDEFGH" \
+  --title "Paper Title" \
+  --journal "Example Journal" \
+  --date "2026-06-20" \
+  --doi "10.xxxx/example" \
+  --summary "This is a short test summary."
+```
+
 `config.example.json` contains all supported settings. The most important fields are:
 
 - `vaultRoot`: absolute path to the Obsidian vault
 - `paths.academicNotesDir`: where converted paper Markdown files live
+- `paths.summaryNotesDir`: where summary-agent notes are saved
 - `paths.attachmentsDir`: where extracted images live
 - `paths.academicTodoList`: close-reading list filename
 - `paths.academicArchiveList`: archive list filename
+- `agents.summaryAgentName`: display name for the agent that writes summaries
+- `agents.coordinatorAgentName`: display name for the agent that performs deterministic writes
 - `zotero.*Env`: names of environment variables holding Zotero credentials
 - `mineru.*`: optional local PDF conversion backend
 
@@ -219,6 +271,7 @@ Do not commit `config.json` or `.env`.
 The workflow separates model work from deterministic state changes:
 
 - agents summarize and classify
+- summary notes are saved through `scripts/write_summary_note.py`
 - Zotero metadata comes from Zotero or another trusted scholarly source
 - reading-list writes happen only through `scripts/reading_list.py`
 - PDF attachment happens only through `scripts/attach_pdf_by_doi.py`

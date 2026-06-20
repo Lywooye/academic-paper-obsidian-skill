@@ -25,9 +25,14 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "academicTodoList": "Academic Papers - To Read.md",
         "academicArchiveList": "Academic Papers - Archive.md",
         "academicNotesDir": "00_Inbox/PDFs",
+        "summaryNotesDir": "11_Academic/Summaries",
         "attachmentsDir": "99_Resources/Attachments",
         "mineruWorkDir": "99_Resources/mineru",
         "statusDir": ".academic-paper-obsidian/tmp",
+    },
+    "agents": {
+        "summaryAgentName": "summary agent",
+        "coordinatorAgentName": "coordinator agent",
     },
     "zotero": {
         "apiBase": "https://api.zotero.org",
@@ -109,4 +114,3 @@ def relative_to_vault(config: Mapping[str, Any], path: Path) -> Path:
         return path.resolve().relative_to(root.resolve())
     except ValueError:
         return path
-
