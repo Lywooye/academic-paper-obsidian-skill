@@ -1,13 +1,16 @@
 # Academic Paper to Obsidian Skill
 
-OpenClaw-style skill and scripts for a Zotero-backed academic reading workflow:
+A lightweight OpenClaw-first skill for turning DOI/PDF handoffs into a Zotero-backed Obsidian reading workflow. It gives your agents a clear way to verify paper metadata, create Zotero items, save summaries, maintain reading/archive/read lists, and optionally convert PDFs into Obsidian-linked Markdown notes.
 
-- attach a local PDF to the correct Zotero item by DOI or item key
-- write academic papers into Obsidian reading/archive lists
-- save summary-agent Markdown notes into Obsidian
-- resolve bare Markdown filenames into vault-relative wikilinks
-- queue user-facing MinerU conversions through an OpenClaw command job when OpenClaw is available
-- optionally convert PDFs to Markdown with MinerU and validate image links
+Core capabilities:
+
+- verify paper metadata and create Zotero items from DOI/PDF handoffs
+- attach local PDFs to the matching Zotero items
+- generate and save summary Markdown notes by the summary agent
+- maintain Obsidian close-reading, archive, and read lists
+- optionally convert PDFs to Markdown with MinerU, which makes it easier to read the original paper and take notes inside Obsidian
+- link close-reading list entries directly to generated Markdown files
+- validate reading-list entries and converted Markdown image links
 
 This repository intentionally keeps personal paths, API keys, Feishu IDs, agent names, and private logs out of the package. Configure everything through `config.json` and environment variables.
 
@@ -22,10 +25,10 @@ The Python scripts are plain command-line tools. Other agent systems can use the
 1. Send a DOI or PDF to your coordinator agent.
 2. The reference agent verifies the Zotero information and adds the Zotero item.
 3. The summary agent writes the paper summary, and the coordinator agent sends it to you.
-4. Reply with a decision such as `todo` for close reading or `archive`.
+4. Reply with a decision such as `close-reading` or `archive`.
 5. The coordinator agent writes the paper to the matching Obsidian close-reading or archive list and verifies that the entry exists.
-6. If you chose close reading, the coordinator agent can optionally queue PDF-to-Markdown conversion. The generated Markdown is saved under your configured Obsidian directory, and the paper title in the close-reading list links directly to that Markdown note.
-7. After reading, tell the coordinator agent that this paper is `read`; the coordinator agent automatically moves the paper information to the read list and verifies the move.
+6. If you chose `close-reading`, the coordinator agent can optionally convert the PDF to Markdown with MinerU. The generated Markdown is saved under your configured Obsidian directory, and the paper title in the close-reading list links directly to that Markdown note. Tables and images are converted alongside the text. This makes it easier to read the original paper and take notes inside Obsidian.
+7. After reading, tell the coordinator agent that this paper is `read`; the coordinator agent automatically moves the paper information to the Obsidian read list and verifies the move.
 
 ## Who It Is For
 
