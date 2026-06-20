@@ -197,7 +197,8 @@ def main(argv: list[str] | None = None) -> int:
                 "job_id": job.get("id") or job.get("jobId") or "unknown",
                 "zotero_id": args.zotero_id,
                 "pdf_path": str(pdf),
-                "message": "Queued MinerU conversion. The command job should deliver the final conversion result.",
+                "message": "Queued MinerU conversion. The OpenClaw command job uses --announce and should deliver the final conversion result.",
+                "next_step": "Wait for the announced result from convert_and_notify.py. Do not create a PID polling cron job for this conversion.",
             },
             ensure_ascii=False,
             indent=2,
@@ -208,4 +209,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

@@ -110,7 +110,7 @@ python3 scripts/write_summary_note.py \
   --summary-file examples/sample_summary.md
 ```
 
-Convert a PDF to Markdown with MinerU:
+Convert a PDF to Markdown with MinerU manually or from a durable job runner:
 
 ```bash
 python3 scripts/convert_and_notify.py "/path/to/paper.pdf" --config config.json --zotero-id "ABCDEFGH"
@@ -124,6 +124,8 @@ python3 scripts/queue_convert_and_notify.py \
   --config config.json \
   --zotero-id "ABCDEFGH"
 ```
+
+For OpenClaw, this is the recommended user-facing path. The queue script creates an `openclaw cron add --command-argv ... --announce` command job, and that job delivers the final success/failure message after `convert_and_notify.py` validates the Markdown file and image links. Treat the immediate queue response as scheduling confirmation only; do not create a separate PID polling cron job.
 
 MinerU is optional. Leave `mineru.enabled=false` until you have a working local MinerU install.
 
@@ -263,9 +265,23 @@ The project is OpenClaw-first. In OpenClaw, user-facing long PDF conversions sho
 }
 ```
 
-Set `OPENCLAW_MINERU_NOTIFY_TO` only if your OpenClaw deployment requires an explicit delivery target. Do not put private user IDs in the public config.
+Set `OPENCLAW_MINERU_NOTIFY_TO` only if your OpenClaw deployment requires an explicit delivery target. Keep the actual platform user/channel ID in your local environment, not in `config.json`:
 
-Other agent systems can skip `queue_convert_and_notify.py` and call `convert_and_notify.py` directly from their own job runner.
+```bash
+export OPENCLAW_MINERU_NOTIFY_TO="your-openclaw-delivery-target"
+```
+
+Use `--dry-run` first to confirm the command job OpenClaw will create:
+
+```bash
+python3 scripts/queue_convert_and_notify.py \
+  "/path/to/paper.pdf" \
+  --config config.json \
+  --zotero-id "ABCDEFGH" \
+  --dry-run
+```
+
+Do not put private user IDs in the public config or documentation. Other agent systems can skip `queue_convert_and_notify.py` and call `convert_and_notify.py` directly from their own durable job runner, but they should keep the same completion rule: report success only after the Markdown artifact and image links validate.
 
 ### Smoke Test
 

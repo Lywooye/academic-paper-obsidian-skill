@@ -51,8 +51,10 @@ export ZOTERO_USER_ID="..."
 - Do not write summary notes by prompt text alone. Use `scripts/write_summary_note.py`.
 - Prefer explicit DOI or Zotero item key. Do not attach a PDF based only on the first DOI found in full PDF text unless no trusted metadata is available.
 - Impact factor is not provided by Zotero or CrossRef. Use a local curated table or write `N/A`.
-- Do not run long MinerU conversions inside a conversational child agent. In OpenClaw, use `scripts/queue_convert_and_notify.py` so a command job runs `scripts/convert_and_notify.py` and delivers the final output.
+- Do not run long MinerU conversions inside a conversational child agent. In OpenClaw, use `scripts/queue_convert_and_notify.py` so a command job runs `scripts/convert_and_notify.py` with `--announce` and delivers the final output.
+- Treat the immediate queue response as scheduling confirmation only. The final conversion deliverable is the later announced output from `scripts/convert_and_notify.py`.
 - Do not use `nohup`, background shell jobs, process polling, or PID-check cron jobs as the user-facing conversion flow. Process existence is not proof of a usable Markdown artifact.
+- Do not hard-code private delivery targets. Store platform user/channel IDs in the environment variable named by `openclaw.notifyToEnv`, or pass `--to` locally.
 - Treat conversion success as final artifact validation: Markdown exists, the expected Zotero ID is present when provided, image links resolve, and the status JSON was written.
 - Do not commit `config.json`, `.env`, Zotero keys, vault paths, session logs, or user identifiers.
 
@@ -66,6 +68,7 @@ Use these rules when translating local agent behavior into a portable workflow:
 - Do not treat process notes such as "done", "sent", "queued", or "I will forward it" as deliverables. A deliverable must contain the expected structured fields, summary body, file path, or validation result.
 - Send the summary to the user before writing reading-list state. Add to the close-reading or archive list only after the user chooses a status such as `todo` or `archive`.
 - Trigger PDF-to-Markdown only when the user chooses close reading or explicitly asks for conversion. Archival entries do not need conversion by default.
+- In OpenClaw, the coordinator agent should stop after `queue_convert_and_notify.py` reports that the command job was queued, then wait for the announced final result instead of creating a follow-up PID check.
 - All durable state changes go through scripts: Zotero attachment, summary-note write, reading-list add/move, and PDF conversion. Agents should not hand-edit Obsidian list files.
 - After every script step, verify the concrete output before reporting completion: item key, list entry, summary note, Markdown file, image links, and status JSON as applicable.
 
@@ -185,7 +188,7 @@ python3 scripts/convert_and_notify.py \
   --timeout-sec 3600
 ```
 
-The wrapper calls `scripts/convert_pdf.py`, writes Markdown under `paths.academicNotesDir`, moves images under `paths.attachmentsDir`, converts image refs to Obsidian embeds, and writes a status JSON under `paths.statusDir`.
+The wrapper calls `scripts/convert_pdf.py`, writes Markdown under `paths.academicNotesDir`, moves images under `paths.attachmentsDir`, converts image refs to Obsidian embeds, and writes a status JSON under `paths.statusDir`. Use this direct wrapper for manual runs or external job runners.
 
 In OpenClaw, use the queue entrypoint for user-facing long conversions:
 
@@ -196,7 +199,7 @@ python3 scripts/queue_convert_and_notify.py \
   --zotero-id "ABCDEFGH"
 ```
 
-The queue script creates an OpenClaw command job with `--announce`. The command job runs `convert_and_notify.py`, and `convert_and_notify.py` only reports success after the final Markdown and image links validate.
+The queue script is the recommended user-facing OpenClaw entrypoint. It creates an OpenClaw command job with `--announce`, the command job runs `convert_and_notify.py`, and `convert_and_notify.py` only reports success after the final Markdown and image links validate. If OpenClaw needs an explicit delivery target, configure `openclaw.notifyToEnv` and set that environment variable locally instead of hard-coding private IDs.
 
 ## Agent Handoff Contract
 
