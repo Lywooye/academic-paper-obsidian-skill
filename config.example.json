@@ -11,6 +11,7 @@
     "statusDir": ".academic-paper-obsidian/tmp"
   },
   "agents": {
+    "referenceAgentName": "reference agent",
     "summaryAgentName": "summary agent",
     "coordinatorAgentName": "coordinator agent"
   },

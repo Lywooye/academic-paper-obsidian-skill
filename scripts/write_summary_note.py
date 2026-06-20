@@ -76,6 +76,7 @@ def build_note(
     date: str,
     doi: str,
     tags: str,
+    reference_agent: str,
     summary_agent: str,
     coordinator_agent: str,
     summary_text: str,
@@ -92,6 +93,7 @@ def build_note(
         f'date: {yaml_string(date)}',
         f'doi: {yaml_string(doi)}',
         f'tags: {yaml_string(tag_line)}',
+        f'reference_agent: {yaml_string(reference_agent)}',
         f'summary_agent: {yaml_string(summary_agent)}',
         f'coordinator_agent: {yaml_string(coordinator_agent)}',
         f'created: {yaml_string(created_at)}',
@@ -107,6 +109,7 @@ def build_note(
         f"- IF: {if_value or 'N/A'}",
         f"- Date: {date or 'N/A'}",
         f"- DOI: {doi or 'N/A'}",
+        f"- Reference agent: {reference_agent}",
         f"- Summary agent: {summary_agent}",
         f"- Coordinator agent: {coordinator_agent}",
     ]
@@ -127,6 +130,7 @@ def write_summary_note(
     doi: str = "",
     tags: str = "",
     summary_text: str = "",
+    reference_agent: str = "",
     summary_agent: str = "",
     coordinator_agent: str = "",
     output_file: str = "",
@@ -136,6 +140,7 @@ def write_summary_note(
     if not summary_text.strip():
         return {"success": False, "error": "summary text is required"}
 
+    reference_agent = reference_agent or configured_agent_name(config, "referenceAgentName", "reference agent")
     summary_agent = summary_agent or configured_agent_name(config, "summaryAgentName", "summary agent")
     coordinator_agent = coordinator_agent or configured_agent_name(config, "coordinatorAgentName", "coordinator agent")
     target = resolve_output_path(config, output_file, title, date, entry_id)
@@ -148,6 +153,7 @@ def write_summary_note(
         date=date,
         doi=doi,
         tags=tags,
+        reference_agent=reference_agent,
         summary_agent=summary_agent,
         coordinator_agent=coordinator_agent,
         summary_text=summary_text,
@@ -161,6 +167,7 @@ def write_summary_note(
             "dry_run": True,
             "output_md": str(target),
             "vault_link": vault_link,
+            "reference_agent": reference_agent,
             "summary_agent": summary_agent,
             "coordinator_agent": coordinator_agent,
         }
@@ -183,6 +190,7 @@ def write_summary_note(
         "action": "write-summary",
         "output_md": str(target),
         "vault_link": vault_link,
+        "reference_agent": reference_agent,
         "summary_agent": summary_agent,
         "coordinator_agent": coordinator_agent,
     }
@@ -201,6 +209,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--tags", default="", help="Tags, comma-separated")
     parser.add_argument("--summary", default="", help="Summary Markdown text")
     parser.add_argument("--summary-file", default="", help="Path to a Markdown file containing the summary body")
+    parser.add_argument("--reference-agent", default="", help="Display name for the reference agent")
     parser.add_argument("--summary-agent", default="", help="Display name for the summary agent")
     parser.add_argument("--coordinator-agent", default="", help="Display name for the coordinator agent")
     parser.add_argument("--file", default="", help="Optional output filename or vault-relative path")
@@ -223,6 +232,7 @@ def main(argv: list[str] | None = None) -> int:
         doi=args.doi,
         tags=args.tags,
         summary_text=read_summary_text(args.summary, args.summary_file),
+        reference_agent=args.reference_agent,
         summary_agent=args.summary_agent,
         coordinator_agent=args.coordinator_agent,
         output_file=args.file,
@@ -235,4 +245,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

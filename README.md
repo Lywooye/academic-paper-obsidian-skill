@@ -168,9 +168,10 @@ You can also copy `.env.example` to `.env` for local reference, but the scripts 
 
 ### Configure Agent Names
 
-The public workflow uses two generic role names:
+The public workflow uses three generic role names:
 
-- `summary agent`: produces the paper summary body
+- `reference agent`: resolves DOI/Zotero metadata, PDF attachment, and source provenance
+- `summary agent`: produces the paper summary body from trusted metadata and available text
 - `coordinator agent`: calls scripts, writes files, and verifies outputs
 
 You can keep these defaults or personalize them in `config.json`:
@@ -178,6 +179,7 @@ You can keep these defaults or personalize them in `config.json`:
 ```json
 {
   "agents": {
+    "referenceAgentName": "reference agent",
     "summaryAgentName": "summary agent",
     "coordinatorAgentName": "coordinator agent"
   }
@@ -259,6 +261,7 @@ python3 scripts/write_summary_note.py \
 - `paths.attachmentsDir`: where extracted images live
 - `paths.academicTodoList`: close-reading list filename
 - `paths.academicArchiveList`: archive list filename
+- `agents.referenceAgentName`: display name for the agent that resolves references and Zotero metadata
 - `agents.summaryAgentName`: display name for the agent that writes summaries
 - `agents.coordinatorAgentName`: display name for the agent that performs deterministic writes
 - `zotero.*Env`: names of environment variables holding Zotero credentials
@@ -270,7 +273,9 @@ Do not commit `config.json` or `.env`.
 
 The workflow separates model work from deterministic state changes:
 
-- agents summarize and classify
+- the reference agent resolves metadata, DOI, Zotero item keys, and PDF attachments
+- the summary agent summarizes and classifies
+- the coordinator agent performs deterministic writes and reports only after verification
 - summary notes are saved through `scripts/write_summary_note.py`
 - Zotero metadata comes from Zotero or another trusted scholarly source
 - reading-list writes happen only through `scripts/reading_list.py`

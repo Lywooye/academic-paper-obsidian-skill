@@ -24,6 +24,7 @@ class WriteSummaryNoteTests(unittest.TestCase):
                     "summaryNotesDir": "11_Academic/Summaries",
                 },
                 "agents": {
+                    "referenceAgentName": "My Reference Agent",
                     "summaryAgentName": "My Summary Agent",
                     "coordinatorAgentName": "My Coordinator",
                 },
@@ -47,9 +48,11 @@ class WriteSummaryNoteTests(unittest.TestCase):
             self.assertTrue(result["success"])
             output = Path(result["output_md"])
             text = output.read_text(encoding="utf-8")
+            self.assertIn("My Reference Agent", text)
             self.assertIn("My Summary Agent", text)
             self.assertIn("My Coordinator", text)
             self.assertIn("This is the summary body.", text)
+            self.assertEqual(result["reference_agent"], "My Reference Agent")
             self.assertEqual(result["vault_link"], "11_Academic/Summaries/A Useful Paper-2026-06-20-ABCDEFGH")
 
     def test_dry_run_does_not_write_file(self) -> None:
@@ -79,4 +82,3 @@ class WriteSummaryNoteTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

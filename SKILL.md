@@ -13,7 +13,7 @@ metadata:
 
 This skill turns academic-paper intake into deterministic script steps:
 
-1. Resolve paper metadata through Zotero or another trusted scholarly source.
+1. Ask a reference agent to resolve paper metadata through Zotero or another trusted scholarly source.
 2. Attach a local PDF to the correct Zotero item by explicit DOI or item key.
 3. Ask a summary agent to produce the paper summary body.
 4. Let a coordinator agent write the summary note and reading-list state through scripts.
@@ -28,6 +28,7 @@ Copy `config.example.json` to `config.json` and set:
 - `paths.academicTodoList`
 - `paths.academicArchiveList`
 - `paths.summaryNotesDir`
+- `agents.referenceAgentName`
 - `agents.summaryAgentName`
 - `agents.coordinatorAgentName`
 - `zotero.apiKeyEnv`
@@ -55,14 +56,16 @@ export ZOTERO_USER_ID="..."
 
 The public workflow uses generic names instead of private agent identities:
 
-- **summary agent**: reads metadata, abstract, PDF text, or converted Markdown and writes the research-facing summary body.
+- **reference agent**: resolves DOI, Zotero item keys, PDF attachments, OA status, venue/date metadata, and provenance fields.
+- **summary agent**: reads trusted metadata, abstract, PDF text, or converted Markdown and writes the research-facing summary body.
 - **coordinator agent**: calls deterministic scripts, saves notes, updates reading lists, runs conversion jobs, and reports success only after verification.
 
-Users can rename both roles in `config.json`:
+Users can rename all roles in `config.json`:
 
 ```json
 {
   "agents": {
+    "referenceAgentName": "reference agent",
     "summaryAgentName": "summary agent",
     "coordinatorAgentName": "coordinator agent"
   }
@@ -147,10 +150,11 @@ python3 scripts/write_summary_note.py \
   --if "N/A" \
   --date "2026-06-20" \
   --doi "10.xxxx/example" \
+  --reference-agent "reference agent" \
   --summary-file "summary.md"
 ```
 
-The script writes a Markdown file under `paths.summaryNotesDir`, records the summary/coordinator agent names, and verifies that the note contains the paper ID, title, and summary body.
+The script writes a Markdown file under `paths.summaryNotesDir`, records the reference/summary/coordinator agent names, and verifies that the note contains the paper ID, title, and summary body.
 
 ## Optional PDF To Markdown
 
@@ -168,7 +172,7 @@ The wrapper calls `scripts/convert_pdf.py`, writes Markdown under `paths.academi
 
 ## Agent Handoff Contract
 
-The literature-search agent should return structured fields, not direct writes:
+The reference agent should return structured fields, not direct writes:
 
 ```json
 {

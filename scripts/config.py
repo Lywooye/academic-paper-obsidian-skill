@@ -31,6 +31,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "statusDir": ".academic-paper-obsidian/tmp",
     },
     "agents": {
+        "referenceAgentName": "reference agent",
         "summaryAgentName": "summary agent",
         "coordinatorAgentName": "coordinator agent",
     },
