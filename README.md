@@ -23,7 +23,7 @@ It is probably too specialized for general readers, but it should be useful to r
 ## Quick Start
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Lywooye/academic-paper-obsidian-skill.git
 cd academic-paper-obsidian-skill
 cp config.example.json config.json
 cp .env.example .env
@@ -84,6 +84,123 @@ python3 scripts/convert_and_notify.py "/path/to/paper.pdf" --config config.json 
 MinerU is optional. Leave `mineru.enabled=false` until you have a working local MinerU install.
 
 ## Configuration
+
+### Prerequisites
+
+You need:
+
+- Python 3.10+
+- an Obsidian vault
+- a Zotero API key
+- optionally MinerU, only if you want PDF-to-Markdown conversion
+
+### Configure Obsidian
+
+Copy the example config:
+
+```bash
+cp config.example.json config.json
+```
+
+Set `vaultRoot` to your Obsidian vault:
+
+```json
+{
+  "vaultRoot": "/absolute/path/to/your/obsidian-vault"
+}
+```
+
+Then adjust the vault-relative paths if your vault uses different folders:
+
+```json
+{
+  "paths": {
+    "readingDir": "01_Maps/03_Reading",
+    "academicTodoList": "Academic Papers - To Read.md",
+    "academicArchiveList": "Academic Papers - Archive.md",
+    "academicNotesDir": "00_Inbox/PDFs",
+    "attachmentsDir": "99_Resources/Attachments"
+  }
+}
+```
+
+The list filenames can be localized. For example:
+
+```json
+{
+  "academicTodoList": "学术文献-细读.md",
+  "academicArchiveList": "学术文献-归档.md"
+}
+```
+
+### Configure Zotero
+
+Create a Zotero API key at Zotero's settings page and export it as an environment variable:
+
+```bash
+export ZOTERO_API_KEY="your-zotero-api-key"
+export ZOTERO_USER_ID="your-zotero-user-id"
+```
+
+For a Zotero group library, export `ZOTERO_GROUP_ID` instead of `ZOTERO_USER_ID`:
+
+```bash
+export ZOTERO_GROUP_ID="your-zotero-group-id"
+```
+
+You can also copy `.env.example` to `.env` for local reference, but the scripts read credentials from environment variables.
+
+### Optional MinerU Setup
+
+MinerU is disabled by default. If you only need Zotero attachment and Obsidian reading-list management, leave it disabled:
+
+```json
+{
+  "mineru": {
+    "enabled": false
+  }
+}
+```
+
+To enable PDF-to-Markdown conversion, install MinerU separately and point `mineru.bin` at your local executable:
+
+```json
+{
+  "mineru": {
+    "enabled": true,
+    "bin": "/absolute/path/to/mineru",
+    "deviceMode": "mps",
+    "timeoutSec": 3600
+  }
+}
+```
+
+Use `mps` for Apple Silicon when available, `cuda` for supported NVIDIA setups, or `cpu` as a slower fallback.
+
+### Smoke Test
+
+Run the unit tests:
+
+```bash
+python3 -m unittest discover -s tests
+```
+
+Then test a reading-list write against your configured vault:
+
+```bash
+python3 scripts/reading_list.py \
+  --config config.json \
+  --action add \
+  --status todo \
+  --id "ABCDEFGH" \
+  --title "Paper Title" \
+  --file "Paper Title-2026-06-20-ABCDEFGH.md" \
+  --journal "Example Journal" \
+  --if "N/A" \
+  --date "2026-06-20" \
+  --doi "10.xxxx/example" \
+  --summary "A concise reason to read this paper."
+```
 
 `config.example.json` contains all supported settings. The most important fields are:
 
