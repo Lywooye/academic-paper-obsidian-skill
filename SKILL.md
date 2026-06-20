@@ -11,6 +11,8 @@ metadata:
 
 # Academic Paper to Obsidian
 
+This skill is OpenClaw-first, not OpenClaw-only. It is written as an OpenClaw-style `SKILL.md`, but the underlying scripts are plain command-line tools and can be called by other agent systems or manually.
+
 This skill turns academic-paper intake into deterministic script steps:
 
 1. Ask a reference agent to resolve paper metadata through Zotero or another trusted scholarly source.

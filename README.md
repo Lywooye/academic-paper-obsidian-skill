@@ -10,6 +10,12 @@ OpenClaw-style skill and scripts for a Zotero-backed academic reading workflow:
 
 This repository intentionally keeps personal paths, API keys, Feishu IDs, agent names, and private logs out of the package. Configure everything through `config.json` and environment variables.
 
+## OpenClaw First, Not OpenClaw Only
+
+This project is designed for OpenClaw-style agent workflows: it includes a `SKILL.md`, three generic agent roles, and handoff rules for reference, summary, and coordinator agents.
+
+The Python scripts are plain command-line tools. Other agent systems can use the same workflow if they can call shell commands with the documented arguments, and the scripts can also be run manually.
+
 ## Who It Is For
 
 This is useful if you use:
