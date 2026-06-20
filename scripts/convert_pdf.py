@@ -152,12 +152,26 @@ def missing_local_image_refs(config: Mapping[str, Any], md_path: Path) -> list[s
     return missing
 
 
-def run_mineru(config: Mapping[str, Any], pdf_path: Path, work_dir: Path, timeout_sec: int) -> tuple[bool, str]:
+def enabled_mineru_config(config: Mapping[str, Any]) -> tuple[Mapping[str, Any] | None, str]:
     mineru = config.get("mineru", {})
     if not isinstance(mineru, Mapping):
-        return False, "Invalid config: mineru must be an object"
+        return None, "Invalid config: mineru must be an object"
     if not mineru.get("enabled", False):
-        return False, "MinerU is disabled in config. Set mineru.enabled=true and mineru.bin to enable conversion."
+        return None, "MinerU is disabled in config. Set mineru.enabled=true and mineru.bin to enable conversion."
+    return mineru, ""
+
+
+def remove_empty_dir(path: Path) -> None:
+    try:
+        path.rmdir()
+    except OSError:
+        pass
+
+
+def run_mineru(config: Mapping[str, Any], pdf_path: Path, work_dir: Path, timeout_sec: int) -> tuple[bool, str]:
+    mineru, config_error = enabled_mineru_config(config)
+    if config_error or mineru is None:
+        return False, config_error
 
     mineru_bin = str(mineru.get("bin") or "mineru")
     backend = str(mineru.get("backend") or "vlm-engine")
@@ -194,8 +208,11 @@ def convert_pdf(
     if not pdf.exists():
         return {"success": False, "error": f"PDF not found: {pdf}"}
 
-    mineru = config.get("mineru", {})
-    default_timeout = int(mineru.get("timeoutSec", 3600)) if isinstance(mineru, Mapping) else 3600
+    mineru, config_error = enabled_mineru_config(config)
+    if config_error or mineru is None:
+        return {"success": False, "error": config_error, "pdf": str(pdf)}
+
+    default_timeout = int(mineru.get("timeoutSec", 3600))
     timeout = timeout_sec or default_timeout
     notes_dir = Path(output_dir).expanduser() if output_dir else vault_path(config, "academicNotesDir")
     attachments_dir = vault_path(config, "attachmentsDir")
@@ -208,6 +225,7 @@ def convert_pdf(
     work_dir.mkdir(parents=True, exist_ok=True)
     mineru_ok, mineru_error = run_mineru(config, pdf, work_dir, timeout)
     if not mineru_ok:
+        remove_empty_dir(work_dir)
         return {"success": False, "error": mineru_error, "pdf": str(pdf), "work_dir": str(work_dir)}
 
     generated_md, md_parent = find_generated_md(work_dir)
