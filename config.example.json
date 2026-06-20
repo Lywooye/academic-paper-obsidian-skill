@@ -1,0 +1,28 @@
+{
+  "vaultRoot": "/absolute/path/to/your/obsidian-vault",
+  "paths": {
+    "readingDir": "01_Maps/03_Reading",
+    "academicTodoList": "Academic Papers - To Read.md",
+    "academicArchiveList": "Academic Papers - Archive.md",
+    "academicNotesDir": "00_Inbox/PDFs",
+    "attachmentsDir": "99_Resources/Attachments",
+    "mineruWorkDir": "99_Resources/mineru",
+    "statusDir": ".academic-paper-obsidian/tmp"
+  },
+  "zotero": {
+    "apiBase": "https://api.zotero.org",
+    "apiKeyEnv": "ZOTERO_API_KEY",
+    "userIdEnv": "ZOTERO_USER_ID",
+    "groupIdEnv": "ZOTERO_GROUP_ID"
+  },
+  "mineru": {
+    "enabled": false,
+    "bin": "mineru",
+    "python": "",
+    "deviceMode": "mps",
+    "backend": "vlm-engine",
+    "effort": "high",
+    "timeoutSec": 3600
+  }
+}
+

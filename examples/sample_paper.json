@@ -1,0 +1,15 @@
+{
+  "status": "ok",
+  "zotero_id": "ABCDEFGH",
+  "title": "A Sample Paper for the Obsidian Reading Pipeline",
+  "cn_title": "Obsidian 阅读流程示例论文",
+  "journal": "Example Journal",
+  "date": "2026-06-20",
+  "doi": "10.1234/example.paper",
+  "if": "N/A",
+  "pdf_path": "/absolute/path/to/paper.pdf",
+  "pdf_attached": true,
+  "oa_status": "unknown",
+  "summary_basis": "metadata_only"
+}
+
