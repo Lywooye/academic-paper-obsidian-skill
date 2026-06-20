@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
@@ -13,9 +14,9 @@ from pathlib import Path
 from typing import Any, Mapping
 
 try:
-    from .config import load_config, vault_path
+    from .config import load_config, require_vault_root, vault_path
 except ImportError:  # pragma: no cover - direct script execution
-    from config import load_config, vault_path  # type: ignore
+    from config import load_config, require_vault_root, vault_path  # type: ignore
 
 
 CONVERT_SCRIPT = Path(__file__).resolve().parent / "convert_pdf.py"
@@ -59,6 +60,69 @@ def extract_json(stdout: str) -> dict[str, Any]:
     raise ValueError("could not parse JSON result from conversion stdout")
 
 
+def normalize_wikilink_ref(ref: str) -> str:
+    return ref.split("|", 1)[0].split("#", 1)[0].strip()
+
+
+def validate_markdown_images(config: Mapping[str, Any], md_path: Path) -> dict[str, Any]:
+    text = md_path.read_text(encoding="utf-8", errors="replace")
+    missing: list[str] = []
+    vault_root = require_vault_root(config)
+
+    wikilinks = re.findall(r"!\[\[([^\]]+)\]\]", text)
+    for raw_ref in wikilinks:
+        ref = normalize_wikilink_ref(raw_ref)
+        if not ref or ref.startswith(("http://", "https://")):
+            continue
+        if not (vault_root / ref).exists():
+            missing.append(ref)
+
+    markdown_links = re.findall(r"!\[[^\]]*\]\(([^)]+)\)", text)
+    for raw_ref in markdown_links:
+        ref = raw_ref.strip()
+        if ref.startswith("<") and ref.endswith(">"):
+            ref = ref[1:-1].strip()
+        if not ref or ref.startswith(("http://", "https://", "data:")):
+            continue
+        ref_path = Path(ref)
+        target = ref_path if ref_path.is_absolute() else md_path.parent / ref_path
+        if not target.exists():
+            missing.append(ref)
+
+    stat = md_path.stat()
+    return {
+        "md_path": str(md_path),
+        "size_bytes": stat.st_size,
+        "chars": len(text),
+        "wikilink_image_count": len(wikilinks),
+        "markdown_image_count": len(markdown_links),
+        "missing_image_count": len(missing),
+        "missing_image_refs": missing[:10],
+    }
+
+
+def validate_conversion_result(config: Mapping[str, Any], result: Mapping[str, Any], zotero_id: str = "") -> dict[str, Any]:
+    output_md = Path(str(result.get("output_md", ""))).expanduser()
+    if not output_md.exists():
+        return {"success": False, "error": f"output markdown not found: {output_md}"}
+
+    output_name = output_md.name
+    if zotero_id and zotero_id not in output_name:
+        return {
+            "success": False,
+            "error": f"output markdown does not include expected Zotero ID {zotero_id}: {output_name}",
+        }
+
+    image_validation = validate_markdown_images(config, output_md)
+    if image_validation["missing_image_count"]:
+        return {
+            "success": False,
+            "error": "missing local image links after conversion",
+            "validation": image_validation,
+        }
+    return {"success": True, "validation": image_validation}
+
+
 def write_status(config: Mapping[str, Any], payload: dict[str, Any], status_file: str = "") -> Path:
     if status_file:
         path = Path(status_file).expanduser()
@@ -73,12 +137,15 @@ def write_status(config: Mapping[str, Any], payload: dict[str, Any], status_file
 
 
 def success_message(result: Mapping[str, Any], elapsed: float, status_file: Path) -> str:
+    validation = result.get("validation", {})
+    if not isinstance(validation, Mapping):
+        validation = {}
     return "\n".join(
         [
             "MinerU conversion completed",
             f"Title: {result.get('title') or Path(str(result.get('output_md', ''))).stem}",
             f"Markdown: {result.get('output_md')}",
-            f"Images moved: {result.get('images_moved', 0)}; missing links: {result.get('missing_image_count', 0)}",
+            f"Images moved: {result.get('images_moved', 0)}; missing links: {validation.get('missing_image_count', result.get('missing_image_count', 0))}",
             f"Elapsed: {human_duration(elapsed)}",
             f"Status: {status_file}",
         ]
@@ -171,9 +238,17 @@ def run(args: argparse.Namespace) -> tuple[int, str]:
         "result": result,
         "stderr_tail": tail_text(stderr, 3000),
     }
+    if payload["success"]:
+        validation = validate_conversion_result(config, result, args.zotero_id)
+        payload["validation"] = validation.get("validation")
+        if not validation.get("success"):
+            payload["success"] = False
+            payload["error"] = validation.get("error")
     status_file = write_status(config, payload, args.status_file)
     if payload["success"]:
-        return 0, success_message(result, elapsed, status_file)
+        result_with_validation = dict(result)
+        result_with_validation["validation"] = payload.get("validation") or {}
+        return 0, success_message(result_with_validation, elapsed, status_file)
     return (1 if args.strict_exit else 0), failure_message(
         args.pdf_path,
         elapsed,
@@ -209,4 +284,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

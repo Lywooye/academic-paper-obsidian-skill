@@ -49,6 +49,18 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "backend": "vlm-engine",
         "effort": "high",
         "timeoutSec": 3600,
+        "taskResultTimeoutSec": 3600,
+        "taskResultDownloadTimeoutSec": 600,
+        "pdfRenderTimeoutSec": 600,
+    },
+    "openclaw": {
+        "cli": "openclaw",
+        "commandCwd": "",
+        "channel": "",
+        "notifyToEnv": "OPENCLAW_MINERU_NOTIFY_TO",
+        "account": "",
+        "outputMaxBytes": 12000,
+        "timeoutGraceSec": 300,
     },
 }
 

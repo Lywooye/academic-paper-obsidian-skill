@@ -6,6 +6,7 @@ OpenClaw-style skill and scripts for a Zotero-backed academic reading workflow:
 - write academic papers into Obsidian reading/archive lists
 - save summary-agent Markdown notes into Obsidian
 - resolve bare Markdown filenames into vault-relative wikilinks
+- queue user-facing MinerU conversions through an OpenClaw command job when OpenClaw is available
 - optionally convert PDFs to Markdown with MinerU and validate image links
 
 This repository intentionally keeps personal paths, API keys, Feishu IDs, agent names, and private logs out of the package. Configure everything through `config.json` and environment variables.
@@ -102,6 +103,15 @@ Convert a PDF to Markdown with MinerU:
 python3 scripts/convert_and_notify.py "/path/to/paper.pdf" --config config.json --zotero-id "ABCDEFGH"
 ```
 
+Queue a user-facing MinerU conversion in OpenClaw:
+
+```bash
+python3 scripts/queue_convert_and_notify.py \
+  "/path/to/paper.pdf" \
+  --config config.json \
+  --zotero-id "ABCDEFGH"
+```
+
 MinerU is optional. Leave `mineru.enabled=false` until you have a working local MinerU install.
 
 ## Configuration
@@ -150,8 +160,8 @@ The list filenames can be localized. For example:
 
 ```json
 {
-  "academicTodoList": "学术文献-细读.md",
-  "academicArchiveList": "学术文献-归档.md"
+  "academicTodoList": "Papers - Close Reading.md",
+  "academicArchiveList": "Papers - Archive.md"
 }
 ```
 
@@ -214,12 +224,35 @@ To enable PDF-to-Markdown conversion, install MinerU separately and point `miner
     "enabled": true,
     "bin": "/absolute/path/to/mineru",
     "deviceMode": "mps",
-    "timeoutSec": 3600
+    "timeoutSec": 3600,
+    "taskResultDownloadTimeoutSec": 600,
+    "pdfRenderTimeoutSec": 600
   }
 }
 ```
 
 Use `mps` for Apple Silicon when available, `cuda` for supported NVIDIA setups, or `cpu` as a slower fallback.
+
+### Optional OpenClaw Queue Setup
+
+The project is OpenClaw-first. In OpenClaw, user-facing long PDF conversions should be queued as command jobs instead of running inside a conversational agent turn:
+
+```json
+{
+  "openclaw": {
+    "cli": "openclaw",
+    "commandCwd": "",
+    "channel": "",
+    "notifyToEnv": "OPENCLAW_MINERU_NOTIFY_TO",
+    "outputMaxBytes": 12000,
+    "timeoutGraceSec": 300
+  }
+}
+```
+
+Set `OPENCLAW_MINERU_NOTIFY_TO` only if your OpenClaw deployment requires an explicit delivery target. Do not put private user IDs in the public config.
+
+Other agent systems can skip `queue_convert_and_notify.py` and call `convert_and_notify.py` directly from their own job runner.
 
 ### Smoke Test
 
@@ -272,6 +305,7 @@ python3 scripts/write_summary_note.py \
 - `agents.coordinatorAgentName`: display name for the agent that performs deterministic writes
 - `zotero.*Env`: names of environment variables holding Zotero credentials
 - `mineru.*`: optional local PDF conversion backend
+- `openclaw.*`: optional command-job queue settings for OpenClaw deployments
 
 Do not commit `config.json` or `.env`.
 
@@ -286,7 +320,8 @@ The workflow separates model work from deterministic state changes:
 - Zotero metadata comes from Zotero or another trusted scholarly source
 - reading-list writes happen only through `scripts/reading_list.py`
 - PDF attachment happens only through `scripts/attach_pdf_by_doi.py`
-- MinerU completion is accepted only after Markdown and image links are validated
+- in OpenClaw, user-facing MinerU work should be queued through `scripts/queue_convert_and_notify.py`
+- MinerU completion is accepted only after Markdown, Zotero ID, and image links are validated
 
 This avoids common failures where an agent says it wrote or converted something but no usable Obsidian artifact exists.
 

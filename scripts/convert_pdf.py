@@ -167,6 +167,9 @@ def run_mineru(config: Mapping[str, Any], pdf_path: Path, work_dir: Path, timeou
     env = os.environ.copy()
     if device_mode:
         env["MINERU_DEVICE_MODE"] = device_mode
+    env.setdefault("MINERU_TASK_RESULT_TIMEOUT_SECONDS", str(int(mineru.get("taskResultTimeoutSec", timeout_sec))))
+    env.setdefault("MINERU_TASK_RESULT_DOWNLOAD_TIMEOUT_SECONDS", str(int(mineru.get("taskResultDownloadTimeoutSec", 600))))
+    env.setdefault("MINERU_PDF_RENDER_TIMEOUT", str(int(mineru.get("pdfRenderTimeoutSec", 600))))
 
     try:
         result = subprocess.run(command, capture_output=True, text=True, timeout=timeout_sec, env=env)
