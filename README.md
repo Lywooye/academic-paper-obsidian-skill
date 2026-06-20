@@ -20,13 +20,12 @@ The Python scripts are plain command-line tools. Other agent systems can use the
 ## Workflow
 
 1. Send a DOI or PDF to your coordinator agent.
-2. The reference agent verifies the paper metadata, creates or finds the Zotero item, attaches the PDF when available, and returns the trusted paper details.
-3. The summary agent writes a concise Markdown summary from the verified metadata and available paper text.
-4. The coordinator agent sends the summary back to you for review.
-5. Reply with a decision such as `todo` for close reading or `archive`.
-6. The coordinator agent writes the paper to the matching Obsidian close-reading or archive list and verifies that the entry exists.
-7. If you chose close reading, the coordinator agent can optionally queue PDF-to-Markdown conversion. The generated Markdown is saved under your configured Obsidian directory, and the paper title in the close-reading list links directly to that Markdown note.
-8. After reading, tell the coordinator agent that the paper is `read`; it moves the paper from the close-reading list to the read list and verifies the move.
+2. The reference agent verifies the Zotero information and adds the Zotero item.
+3. The summary agent writes the paper summary, and the coordinator agent sends it to you.
+4. Reply with a decision such as `todo` for close reading or `archive`.
+5. The coordinator agent writes the paper to the matching Obsidian close-reading or archive list and verifies that the entry exists.
+6. If you chose close reading, the coordinator agent can optionally queue PDF-to-Markdown conversion. The generated Markdown is saved under your configured Obsidian directory, and the paper title in the close-reading list links directly to that Markdown note.
+7. After reading, tell the coordinator agent that this paper is `read`; the coordinator agent automatically moves the paper information to the read list and verifies the move.
 
 ## Who It Is For
 
