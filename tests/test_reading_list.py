@@ -27,7 +27,7 @@ class ReadingListTests(unittest.TestCase):
                     "academicNotesDir": "00_Inbox/PDFs",
                     "attachmentsDir": "99_Resources/Attachments",
                     "mineruWorkDir": "99_Resources/mineru",
-                    "statusDir": ".academic-paper-obsidian/tmp",
+                    "statusDir": ".academic-paper-zotero-obsidian/tmp",
                 },
             },
         )
@@ -100,4 +100,3 @@ class ReadingListTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

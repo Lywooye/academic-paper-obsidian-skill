@@ -28,7 +28,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "summaryNotesDir": "11_Academic/Summaries",
         "attachmentsDir": "99_Resources/Attachments",
         "mineruWorkDir": "99_Resources/mineru",
-        "statusDir": ".academic-paper-obsidian/tmp",
+        "statusDir": ".academic-paper-zotero-obsidian/tmp",
     },
     "agents": {
         "referenceAgentName": "reference agent",

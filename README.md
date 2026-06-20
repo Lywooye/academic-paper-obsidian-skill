@@ -1,4 +1,4 @@
-# Academic Paper to Obsidian Skill
+# Academic Paper Zotero Obsidian
 
 A lightweight OpenClaw-first skill for turning DOI/PDF handoffs into a Zotero-backed Obsidian reading workflow. It gives your agents a clear way to verify paper metadata, create Zotero items, save summaries, maintain reading/archive/read lists, and optionally convert PDFs into Obsidian-linked Markdown notes.
 
@@ -44,8 +44,8 @@ It is probably too specialized for general readers, but it should be useful to r
 ## Quick Start
 
 ```bash
-git clone https://github.com/Lywooye/academic-paper-obsidian-skill.git
-cd academic-paper-obsidian-skill
+git clone https://github.com/Lywooye/academic-paper-zotero-obsidian.git
+cd academic-paper-zotero-obsidian
 cp config.example.json config.json
 cp .env.example .env
 ```

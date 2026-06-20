@@ -1,4 +1,4 @@
-# Academic Paper to Obsidian Skill
+# Academic Paper Zotero Obsidian
 
 中文说明文件。英文版见 `README.md`。
 
@@ -46,8 +46,8 @@
 ## 快速开始
 
 ```bash
-git clone https://github.com/Lywooye/academic-paper-obsidian-skill.git
-cd academic-paper-obsidian-skill
+git clone https://github.com/Lywooye/academic-paper-zotero-obsidian.git
+cd academic-paper-zotero-obsidian
 cp config.example.json config.json
 cp .env.example .env
 ```

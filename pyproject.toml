@@ -1,5 +1,5 @@
 [project]
-name = "academic-paper-obsidian-skill"
+name = "academic-paper-zotero-obsidian"
 version = "0.1.0"
 description = "OpenClaw-style skill scripts for Zotero-backed academic paper intake into Obsidian reading lists."
 requires-python = ">=3.10"

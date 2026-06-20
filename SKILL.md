@@ -1,5 +1,5 @@
 ---
-name: academic-paper-obsidian
+name: academic-paper-zotero-obsidian
 description: >
   Process academic papers into Zotero-backed Obsidian reading lists. Use when a user provides a DOI, Zotero item key, or local PDF and wants the paper saved, summarized, queued for close reading, archived, or optionally converted to Markdown with MinerU.
 metadata:
@@ -9,7 +9,7 @@ metadata:
       - ZOTERO_USER_ID
 ---
 
-# Academic Paper to Obsidian
+# Academic Paper Zotero Obsidian
 
 This skill is OpenClaw-first, not OpenClaw-only. It is written as an OpenClaw-style `SKILL.md`, but the underlying scripts are plain command-line tools and can be called by other agent systems or manually.
 
