@@ -55,6 +55,42 @@ class ConvertPdfTests(unittest.TestCase):
             self.assertTrue(work_root.exists())
             self.assertEqual(list(work_root.iterdir()), [])
 
+    def test_missing_mineru_binary_returns_clean_error(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            pdf = tmp_path / "paper.pdf"
+            pdf.write_bytes(b"%PDF-1.4\n")
+            cfg = self.make_config(
+                tmp_path,
+                {"enabled": True, "bin": "/no/such/mineru_binary_xyz"},
+            )
+            work_dir = tmp_path / "work"
+            work_dir.mkdir()
+
+            ok, error = convert_pdf_module.run_mineru(cfg, pdf, work_dir, 30)
+
+            self.assertFalse(ok)
+            self.assertIn("MinerU binary not found", error)
+            self.assertIn("/no/such/mineru_binary_xyz", error)
+
+    def test_missing_mineru_binary_via_convert_pdf_cleans_up(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            pdf = tmp_path / "paper.pdf"
+            pdf.write_bytes(b"%PDF-1.4\n")
+            cfg = self.make_config(
+                tmp_path,
+                {"enabled": True, "bin": "/no/such/mineru_binary_xyz"},
+            )
+            work_root = Path(cfg["vaultRoot"]) / "99_Resources" / "mineru"
+
+            result = convert_pdf_module.convert_pdf(cfg, str(pdf))
+
+            self.assertFalse(result["success"])
+            self.assertIn("MinerU binary not found", result["error"])
+            self.assertFalse(Path(result["work_dir"]).exists())
+            self.assertEqual(list(work_root.iterdir()), [])
+
 
 if __name__ == "__main__":
     unittest.main()

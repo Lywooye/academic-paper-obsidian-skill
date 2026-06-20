@@ -191,6 +191,13 @@ def run_mineru(config: Mapping[str, Any], pdf_path: Path, work_dir: Path, timeou
         stdout = exc.stdout if isinstance(exc.stdout, str) else ""
         stderr = exc.stderr if isinstance(exc.stderr, str) else ""
         return False, f"MinerU timed out after {timeout_sec}s\n{stdout[-1000:]}\n{stderr[-1000:]}".strip()
+    except FileNotFoundError:
+        return False, (
+            f"MinerU binary not found: {mineru_bin}. "
+            "Check that MinerU is installed and mineru.bin points to the executable."
+        )
+    except OSError as exc:
+        return False, f"Could not run MinerU binary {mineru_bin}: {exc}"
 
     if result.returncode != 0:
         return False, (result.stderr or result.stdout or "MinerU conversion failed").strip()
